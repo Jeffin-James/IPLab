@@ -1,0 +1,73 @@
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.sql.*;
+import java.io.*;
+public class DBAccess extends HttpServlet
+{
+public void doGet(HttpServletRequest request,HttpServletResponse response)throws ServletException,IOException
+{
+try
+{
+Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
+Connection connection= DriverManager.getConnection("jdbc:ucanaccess://C://jsdk2.1//stud.accdb");
+PrintWriter out=response.getWriter();
+
+int Rollno=Integer.valueOf(request.getParameter("Roll_no"));
+String Name=request.getParameter("Name");
+String ans1=request.getParameter("group1");
+String ans2=request.getParameter("group2");
+String ans3=request.getParameter("group3");
+String ans4=request.getParameter("group4");
+String ans5=request.getParameter("group5");
+
+out.println("Dear "+Name+"!<br><br>");
+out.println("Thank you for participating in online Exam<br><br>");
+
+
+int Total=0;
+if(ans1.equals("True"))
+	Total+=2;
+if(ans2.equals("False"))
+	Total+=2;
+if(ans3.equals("True"))
+	Total+=2;
+if(ans4.equals("False"))
+	Total+=2;
+if(ans5.equals("False"))
+	Total+=2;
+
+
+String sql="insert into Table1 values("+Rollno+",'"+Name+"',"+Total+")";//,m1,m2,m3,m4,m5) values(?,?,?,?,?,?,?)";
+System.out.println("Query is: "+sql);
+
+Statement st=connection.createStatement();
+st.executeUpdate(sql);
+out.println("Your result is stored in our database<br><br>");
+out.println("Participants and their Marks are, <br><br>");
+
+Statement stmt=connection.createStatement(); 
+String query="SELECT * FROM Table1";
+ResultSet rs=stmt.executeQuery(query); 
+
+response.setContentType("text/html");
+out.println("<html>");
+out.println("<body>");
+out.println("<table border=5>");
+out.println("<th>"+"Roll_no"+"</th>");
+out.println("<th>"+"Name"+"</th>"); 
+out.println("<th>"+"Total Marks"+"</th>"); 
+while(rs.next())
+{
+out.println("<tr>");
+out.print("<td>"+rs.getInt(1)+"</td>");
+out.print("<td>"+rs.getString(2)+"</td>");
+out.print("<td>"+rs.getInt(3)+"</td>");
+out.println("</tr>");
+}
+out.println("</table>");
+out.println("</body></html>");
+}
+catch(Exception e)
+{     System.out.println(e);
+}
+}   }
